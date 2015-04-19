@@ -5,6 +5,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
+
+import com.idp.api.receiverApi.model.Receiver;
+import com.idp.api.senderApi.model.Sender;
+
 
 
 public class MainActivity extends ActionBarActivity {
@@ -21,6 +26,29 @@ public class MainActivity extends ActionBarActivity {
 
     public void getReceivers(View v) {
         new EndpointsAsyncTaskReceiver(this).execute();
+    }
+
+    public void insertSender(View v)  {
+        Sender sender = new Sender();
+        sender.setCity("testwee");
+        sender.setDate("25-12-2015");
+
+        new EndpointsAsyncInsertSender(this,sender).execute();
+
+        Toast.makeText(this,"ok",Toast.LENGTH_LONG).show();
+
+    }
+
+    public void insertReceiver(View v)  {
+        Receiver receiver = new Receiver();
+        receiver.setStartCity("testwee");
+        receiver.setDestination("finalTest");
+        receiver.setDate("25-12-2015");
+
+        new EndpointsAsyncInsertReceiver(this,receiver).execute();
+
+        Toast.makeText(this,"ok",Toast.LENGTH_LONG).show();
+
     }
 
     @Override
