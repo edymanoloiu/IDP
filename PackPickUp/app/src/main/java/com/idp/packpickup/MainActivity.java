@@ -18,6 +18,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        new GcmRegistrationAsyncTask(this).execute();
     }
 
     public void getSenders(View v) {

@@ -5,8 +5,8 @@
       <module fileurl="file://$PROJECT_DIR$/PackPickUp.iml" filepath="$PROJECT_DIR$/PackPickUp.iml" />
       <module fileurl="file://$PROJECT_DIR$/api/api.iml" filepath="$PROJECT_DIR$/api/api.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/backend/backend.iml" filepath="$PROJECT_DIR$/backend/backend.iml" />
       <module fileurl="file://$PROJECT_DIR$/serverapp/serverapp.iml" filepath="$PROJECT_DIR$/serverapp/serverapp.iml" />
     </modules>
   </component>
 </project>
-
