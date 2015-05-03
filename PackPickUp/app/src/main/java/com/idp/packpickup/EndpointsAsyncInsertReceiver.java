@@ -22,10 +22,9 @@ class EndpointsAsyncInsertReceiver extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        if (myApiService == null) { // Only do this once
+        if(myApiService == null) { // Only do this once
             ReceiverApi.Builder builder = new ReceiverApi.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null)
                     .setRootUrl("https://peerless-fabric-93309.appspot.com/_ah/api/");
-            // end options for devappserver
 
             myApiService = builder.build();
         }
