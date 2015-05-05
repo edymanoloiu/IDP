@@ -55,10 +55,10 @@
         android:id="@+id/sendbutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         android:onClick="sendNotificationButtonOnClick"
-        android:text="@string/send_button" />
+        android:text="@string/send_button"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
     <EditText
         android:id="@+id/editTextNotificationMessage"
@@ -68,4 +68,41 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="42dp"
         android:hint="@string/notification_message_hint" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/username"
+        android:layout_below="@+id/sendbutton"
+        android:layout_alignParentStart="true"
+        android:layout_alignEnd="@+id/btnGetSenders"
+        android:hint="Username"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/password"
+        android:layout_below="@+id/username"
+        android:layout_alignParentStart="true"
+        android:layout_alignEnd="@+id/btnGetSenders"
+        android:hint="Password"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Login"
+        android:onClick="login"
+        android:id="@+id/loginUser"
+        android:layout_below="@+id/password"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:onClick="register"
+        android:id="@+id/registerUser"
+        android:layout_below="@+id/password"
+        android:layout_alignParentEnd="true" />
+
 </RelativeLayout>

@@ -37,7 +37,8 @@ import static com.idp.api.OfyServiceSender.ofy;
 )
 public class SenderEndpoint {
 
-    public SenderEndpoint(){}
+    public SenderEndpoint() {
+    }
 
     /**
      * Return a collection of quotes
@@ -47,7 +48,7 @@ public class SenderEndpoint {
      */
     @ApiMethod(name = "listSenders")
     public CollectionResponse<Sender> listSenders(@Nullable @Named("cursor") String cursorString,
-                                               @Nullable @Named("count") Integer count) {
+                                                  @Nullable @Named("count") Integer count) {
 
         Query<Sender> query = ofy().load().type(Sender.class);
         if (count != null) query.limit(count);
@@ -78,6 +79,7 @@ public class SenderEndpoint {
 
     /**
      * This inserts a new <code>Quote</code> object.
+     *
      * @param sender The object to be added.
      * @return The object to be added.
      */
@@ -98,11 +100,12 @@ public class SenderEndpoint {
 
     /**
      * This updates an existing <code>Quote</code> object.
+     *
      * @param sender The object to be added.
      * @return The object to be updated.
      */
     @ApiMethod(name = "updateSender")
-    public Sender updateSender(Sender sender)throws NotFoundException {
+    public Sender updateSender(Sender sender) throws NotFoundException {
         if (findRecord(sender.getId()) == null) {
             throw new NotFoundException("Quote Record does not exist");
         }
@@ -112,12 +115,13 @@ public class SenderEndpoint {
 
     /**
      * This deletes an existing <code>Sender</code> object.
+     *
      * @param id The id of the object to be deleted.
      */
     @ApiMethod(name = "removeSender")
     public void removeSender(@Named("id") Long id) throws NotFoundException {
         Sender record = findRecord(id);
-        if(record == null) {
+        if (record == null) {
             throw new NotFoundException("Quote Record does not exist");
         }
         ofy().delete().entity(record).now();

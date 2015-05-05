@@ -1,37 +1,41 @@
 package com.idp.packpickup;
 
-import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
-
-import com.idp.api.receiverApi.model.Receiver;
-import com.idp.api.senderApi.model.Sender;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
-
-import com.google.android.gms.gcm.*;
-import com.microsoft.windowsazure.messaging.*;
-import com.microsoft.windowsazure.notifications.NotificationsManager;
-
-import java.net.URLEncoder;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
+import com.idp.api.receiverApi.model.Receiver;
+import com.idp.api.senderApi.model.Sender;
+import com.idp.api.userApi.UserApi;
+import com.idp.api.userApi.model.User;
+import com.microsoft.windowsazure.messaging.NotificationHub;
+import com.microsoft.windowsazure.notifications.NotificationsManager;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -54,6 +58,42 @@ public class MainActivity extends ActionBarActivity {
         gcm = GoogleCloudMessaging.getInstance(this);
         hub = new NotificationHub(HubName, HubListenConnectionString, this);
         registerWithNotificationHubs();
+    }
+
+    public void login(View v) throws ExecutionException, InterruptedException {
+        EditText uname = (EditText) findViewById(R.id.username);
+        EditText pass = (EditText) findViewById(R.id.password);
+        String username = uname.getText().toString();
+        String password = pass.getText().toString();
+        boolean userExists = false;
+        List<User> result = new EndpointsAsyncTaskUserLogin(this, username, password).execute().get();
+        for (User q : result)
+            if (q.getUsername().equals(username)) {
+                if (q.getPassword().equals(password)) {
+                    Toast.makeText(this, "register", Toast.LENGTH_LONG).show();
+
+                } else
+                    Toast.makeText(this, "the password", Toast.LENGTH_LONG).show();
+                userExists = true;
+            }
+        if (!userExists)
+            Toast.makeText(this, "the user doesn't exists", Toast.LENGTH_LONG).show();
+    }
+
+    public void register(View v) throws ExecutionException, InterruptedException {
+        EditText uname = (EditText) findViewById(R.id.username);
+        EditText pass = (EditText) findViewById(R.id.password);
+        String username = uname.getText().toString();
+        String password = pass.getText().toString();
+        if (!username.isEmpty() && !password.isEmpty()) {
+            User user = new User();
+            user.setPassword(password);
+            user.setUsername(username);
+            Boolean register = new EndpointsAsyncTaskUserRegister(this, user).execute().get();
+            if (register)
+                Toast.makeText(this, "registration succesufly", Toast.LENGTH_LONG);
+        } else
+            Toast.makeText(this, "One or both fields are empty", Toast.LENGTH_LONG);
     }
 
     public void getSenders(View v) {
