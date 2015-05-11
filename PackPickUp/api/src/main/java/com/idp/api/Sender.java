@@ -11,8 +11,11 @@ import com.googlecode.objectify.annotation.Id;
 public class Sender {
     @Id
     Long id;
-    String city;
+    String sentFrom;
     String date;
+    String destination;
+    String phoneNumber;
+    String username;
 
     public Sender() {}
 
@@ -24,12 +27,20 @@ public class Sender {
         this.id = id;
     }
 
-    public String getCity() {
-        return city;
+    public String getSentFrom() {
+        return sentFrom;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setSentFrom(String sentFrom) {
+        this.sentFrom = sentFrom;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
     }
 
     public String getDate() {
@@ -38,5 +49,21 @@ public class Sender {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

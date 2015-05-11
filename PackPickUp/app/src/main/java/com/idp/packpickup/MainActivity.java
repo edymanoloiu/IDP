@@ -1,10 +1,13 @@
 package com.idp.packpickup;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.TelephonyManager;
 import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,11 +16,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.idp.api.receiverApi.model.Receiver;
 import com.idp.api.senderApi.model.Sender;
-import com.idp.api.userApi.UserApi;
 import com.idp.api.userApi.model.User;
 import com.microsoft.windowsazure.messaging.NotificationHub;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
@@ -28,10 +28,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import javax.crypto.Mac;
@@ -70,14 +68,16 @@ public class MainActivity extends ActionBarActivity {
         for (User q : result)
             if (q.getUsername().equals(username)) {
                 if (q.getPassword().equals(password)) {
-                    Toast.makeText(this, "register", Toast.LENGTH_LONG).show();
-
+                    Toast.makeText(this, "Login successful", Toast.LENGTH_LONG).show();
+                    Intent tabView = new Intent(this, TabView.class);
+                    tabView.putExtra("username", username);
+                    startActivity(tabView);
                 } else
-                    Toast.makeText(this, "the password", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Incorect password", Toast.LENGTH_LONG).show();
                 userExists = true;
             }
         if (!userExists)
-            Toast.makeText(this, "the user doesn't exists", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "The user doesn't exists", Toast.LENGTH_LONG).show();
     }
 
     public void register(View v) throws ExecutionException, InterruptedException {
@@ -85,13 +85,20 @@ public class MainActivity extends ActionBarActivity {
         EditText pass = (EditText) findViewById(R.id.password);
         String username = uname.getText().toString();
         String password = pass.getText().toString();
+        TelephonyManager phoneManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        String phoneNumber = phoneManager.getLine1Number();
         if (!username.isEmpty() && !password.isEmpty()) {
             User user = new User();
+            user.setPhoneNumber(phoneNumber);
             user.setPassword(password);
             user.setUsername(username);
             Boolean register = new EndpointsAsyncTaskUserRegister(this, user).execute().get();
-            if (register)
+            if (register) {
                 Toast.makeText(this, "registration succesufly", Toast.LENGTH_LONG);
+                Intent tabView = new Intent(this, TabView.class);
+                tabView.putExtra("username", username);
+                startActivity(tabView);
+            }
         } else
             Toast.makeText(this, "One or both fields are empty", Toast.LENGTH_LONG);
     }
@@ -106,7 +113,7 @@ public class MainActivity extends ActionBarActivity {
 
     public void insertSender(View v) {
         Sender sender = new Sender();
-        sender.setCity("testwee");
+        //sender.setCity("testwee");
         sender.setDate("25-12-2015");
 
         new EndpointsAsyncInsertSender(this, sender).execute();

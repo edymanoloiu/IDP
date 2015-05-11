@@ -9,6 +9,7 @@ public class User {
     Long id;
     String username;
     String password;
+    String phoneNumber;
 
     public User() {
     }
@@ -35,5 +36,13 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

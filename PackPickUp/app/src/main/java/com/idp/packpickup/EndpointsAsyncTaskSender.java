@@ -41,10 +41,10 @@ class EndpointsAsyncTaskSender extends AsyncTask<Void, Void, List<Sender>> {
         }
     }
 
-    @Override
+    /*@Override
     protected void onPostExecute(List<Sender> result) {
         for (Sender q : result) {
             Toast.makeText(context, q.getCity() + " : " + q.getDate(), Toast.LENGTH_LONG).show();
         }
-    }
+    }*/
 }

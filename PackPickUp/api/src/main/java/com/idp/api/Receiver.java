@@ -14,6 +14,9 @@ public class Receiver {
     String startCity;
     String Destination;
     String date;
+    String username;
+    String phoneNumber;
+    int rating;
 
     public Receiver(){}
 
@@ -47,5 +50,29 @@ public class Receiver {
 
     public String getDate() {
         return date;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 }
