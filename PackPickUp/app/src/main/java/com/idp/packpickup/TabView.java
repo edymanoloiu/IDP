@@ -1,8 +1,12 @@
 package com.idp.packpickup;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,12 +25,27 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.idp.api.receiverApi.model.Receiver;
 import com.idp.api.senderApi.model.Sender;
+import com.microsoft.windowsazure.messaging.NotificationHub;
+import com.microsoft.windowsazure.notifications.NotificationsManager;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.net.URLEncoder;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import static com.idp.packpickup.MyHandler.tabView;
 
 
 public class TabView extends Activity {
@@ -45,7 +64,16 @@ public class TabView extends Activity {
             "Buzau",
             "Focsani"
     };
-
+    private String SENDER_ID = "488445484034";
+    private GoogleCloudMessaging gcm;
+    private NotificationHub hub;
+    private String HubName = "packpickupnotificationhub";
+    private String HubListenConnectionString = "Endpoint=sb://packpickupnotificationhub-ns.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=mm4USW+F5ggL4/yj9eNumacmKiT3ZpK94Mxe5KK6Ffs=";
+    private String HubEndpoint = null;
+    private String HubSasKeyName = null;
+    private String HubSasKeyValue = null;
+    private String HubFullAccess = "Endpoint=sb://packpickupnotificationhub-ns.servicebus.windows.net/;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=uMq2U0gtlvSjAKpWcFxRfl2MU/tGflwnGXXJ+8ZcTuQ=";
+    private String phoneNumber;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,7 +82,15 @@ public class TabView extends Activity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             username = extras.getString("username");
+            phoneNumber = extras.getString("phone");
         }
+
+        tabView = this;
+
+        NotificationsManager.handleNotifications(this, SENDER_ID, MyHandler.class);
+        gcm = GoogleCloudMessaging.getInstance(this);
+        hub = new NotificationHub(HubName, HubListenConnectionString, this);
+        registerWithNotificationHubs();
 
         switcher = (ViewFlipper) findViewById(R.id.ViewSwitcher);
         RequestSender = (Button) findViewById(R.id.button);
@@ -90,7 +126,6 @@ public class TabView extends Activity {
         RequestSender.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 isDeliver = false;
                 TextView text = (TextView) findViewById(R.id.t2);
                 try {
@@ -110,9 +145,7 @@ public class TabView extends Activity {
         });
 
         RequestDeliver.setOnClickListener(new View.OnClickListener() {
-
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 isDeliver = true;
                 TextView text = (TextView) findViewById(R.id.t2);
                 text.setText("Senders list:");
@@ -133,9 +166,7 @@ public class TabView extends Activity {
         });
 
         Previous.setOnClickListener(new View.OnClickListener() {
-
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 new AnimationUtils();
                 switcher.setAnimation(AnimationUtils.makeInAnimation
                         (getBaseContext(), true));
@@ -146,7 +177,6 @@ public class TabView extends Activity {
         Previous2.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 EditText edittext = (EditText) findViewById(R.id.text);
                 edittext.setText(null);
                 new AnimationUtils();
@@ -163,48 +193,63 @@ public class TabView extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     public void populateLists() throws ExecutionException, InterruptedException {
-        //se vor trimite parametri de mai jos catre server si se intoarce un rapuns
         Spinner plecareSender = (Spinner) findViewById(R.id.spinner1);
         Spinner destinatieSender = (Spinner) findViewById(R.id.spinner12);
         Spinner plecareDeliver = (Spinner) findViewById(R.id.spinner2);
         Spinner destinatieDeliver = (Spinner) findViewById(R.id.spinner21);
-        DatePicker data = (DatePicker) findViewById(R.id.datePicker);
-        String selectedDate = data.getDayOfMonth() + "/" + (data.getMonth() < 10 ? "0" + data.getMonth() : data.getMonth()) + "/" + data.getYear();
+        DatePicker dataSender = (DatePicker) findViewById(R.id.datePicker);
+        String selectedDateSender = dataSender.getDayOfMonth() + "/" + (dataSender.getMonth() + 1 < 10 ? "0" + (dataSender.getMonth() + 1) : dataSender.getMonth()) + "/" + dataSender.getYear();
+        DatePicker dataDeliver = (DatePicker) findViewById(R.id.datePicker2);
+        String selectedDateDeliver = dataDeliver.getDayOfMonth() + "/" + (dataDeliver.getMonth() + 1 < 10 ? "0" + (dataDeliver.getMonth() + 1) : dataDeliver.getMonth()) + "/" + dataDeliver.getYear();
         String senderStartCity = plecareSender.getSelectedItem().toString();
         String senderDestinationCity = destinatieSender.getSelectedItem().toString();
         String deliverStartCity = plecareDeliver.getSelectedItem().toString();
         String deliverDestinationCity = destinatieDeliver.getSelectedItem().toString();
 
         if (isDeliver) {
-            String[] senders = getSenders(selectedDate, deliverStartCity, deliverDestinationCity);
+
+            //insert deliver into DB
+            Receiver receiver = new Receiver();
+            receiver.setPhoneNumber(phoneNumber);
+            receiver.setUsername(username);
+            receiver.setDate(selectedDateDeliver);
+            receiver.setDestination(deliverDestinationCity);
+            receiver.setStartCity(deliverStartCity);
+            new EndpointsAsyncInsertReceiver(this, receiver).execute();
+            //
+
+            String[] senders = getSenders(selectedDateDeliver, deliverStartCity, deliverDestinationCity);
             if (senders == null) {
                 senders = new String[1];
                 senders[0] = "No senders found";
             }
             ArrayAdapterDeliver = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, senders);
         } else {
-            String[] delivers = getDelivers(selectedDate, senderStartCity, senderDestinationCity);
+            //insert sender into DB
+            Sender sender = new Sender();
+            sender.setPhoneNumber(phoneNumber);
+            sender.setUsername(username);
+            sender.setDate(selectedDateSender);
+            sender.setDestination(senderDestinationCity);
+            sender.setSentFrom(senderStartCity);
+            new EndpointsAsyncInsertSender(this, sender).execute();
+            //
+
+            String[] delivers = getDelivers(selectedDateSender, senderStartCity, senderDestinationCity);
             if (delivers == null) {
                 delivers = new String[1];
                 delivers[0] = "No delivers found";
@@ -216,23 +261,24 @@ public class TabView extends Activity {
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                switcher.setDisplayedChild(2);
                 final Object o = listview.getItemAtPosition(position);
-                TextView textView = (TextView) findViewById(R.id.t3);
-                textView.setText("Send a message to: \n" + o.toString());
-
-                final EditText editText = (EditText) findViewById(R.id.text);
-                editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                    @Override
-                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                        boolean handled = false;
-                        if (actionId == EditorInfo.IME_ACTION_SEND) {
-                            sendMessage(editText.getText().toString(), o.toString());
-                            handled = true;
+                if (!o.toString().equals("No senders found") && !o.toString().equals("No delivers found")) {
+                    switcher.setDisplayedChild(2);
+                    TextView textView = (TextView) findViewById(R.id.t3);
+                    textView.setText("Send a message to: \n" + o.toString());
+                    final EditText editText = (EditText) findViewById(R.id.text);
+                    editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                        @Override
+                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                            boolean handled = false;
+                            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                                sendMessage(editText.getText().toString(), username);
+                                handled = true;
+                            }
+                            return handled;
                         }
-                        return handled;
-                    }
-                });
+                    });
+                }
             }
         });
     }
@@ -243,11 +289,14 @@ public class TabView extends Activity {
         for (int i = 0; i < senders.size(); i++) {
             Sender sender = senders.get(i);
             if (sender.getDate().equals(selectedDate) && sender.getDestination().equals(senderDestinationCity) && sender.getSentFrom().equals(senderStartCity))
-                filteredSenders.add(sender.getDate() + " " + sender.getDestination());
+                filteredSenders.add(sender.getUsername() + ": " + sender.getPhoneNumber() + " - " + sender.getDate());
         }
         if (filteredSenders.size() == 0)
             return null;
-        return (String[]) filteredSenders.toArray();
+        String[] sendersArray = new String[filteredSenders.size()];
+        for (int i = 0; i < filteredSenders.size(); i++)
+            sendersArray[i] = filteredSenders.get(i);
+        return sendersArray;
     }
 
     public String[] getDelivers(String selectedDate, String deliverStartCity, String deliverDestinationCity) throws ExecutionException, InterruptedException {
@@ -255,15 +304,140 @@ public class TabView extends Activity {
         LinkedList<String> filteredReceivers = new LinkedList<>();
         for (int i = 0; i < receivers.size(); i++) {
             Receiver receiver = receivers.get(i);
-            if (receiver.getDate().equals(selectedDate) && receiver.getDestination().equals(deliverDestinationCity) && receiver.getStartCity().equals(deliverStartCity))
-                filteredReceivers.add(receiver.getDate() + " " + receiver.getDestination());
+            if (receiver.getDate().equals(selectedDate) && receiver.getStartCity().equals(deliverDestinationCity) && receiver.getDestination().equals(deliverStartCity))
+                filteredReceivers.add(receiver.getUsername() + ": " + receiver.getPhoneNumber() + " - " + receiver.getDate());
         }
         if (filteredReceivers.size() == 0)
             return null;
-        return (String[]) filteredReceivers.toArray();
+        String[] receiversArray = new String[filteredReceivers.size()];
+        for (int i = 0; i < filteredReceivers.size(); i++)
+            receiversArray[i] = filteredReceivers.get(i);
+        return receiversArray;
     }
 
-    public void sendMessage(String message, String user) {  //metoda care trimite message la user
+    public void sendMessage(String message, String user) {
+        EditText notificationText = (EditText) findViewById(R.id.text);
+        final String json = "{\"data\":{\"message\":\"" + notificationText.getText().toString() + "\"}}";
+        new Thread() {
+            public void run() {
+                try {
+                    HttpClient client = new DefaultHttpClient();
 
+                    // Based on reference documentation...
+                    // http://msdn.microsoft.com/library/azure/dn223273.aspx
+                    ParseConnectionString(HubFullAccess);
+                    String url = HubEndpoint + HubName + "/messages/?api-version=2015-01";
+                    HttpPost post = new HttpPost(url);
+
+                    // Authenticate the POST request with the SaS token.
+                    post.setHeader("Authorization", generateSasToken(url));
+
+                    // JSON content for GCM
+                    post.setHeader("Content-Type", "application/json;charset=utf-8");
+
+                    // Notification format should be GCM
+                    post.setHeader("ServiceBusNotification-Format", "gcm");
+                    post.setEntity(new StringEntity(json));
+
+                    HttpResponse response = client.execute(post);
+                } catch (Exception e) {
+                    DialogNotify("Exception", e.getMessage().toString());
+                }
+            }
+        }.start();
+    }
+
+    private void ParseConnectionString(String connectionString) {
+        String[] parts = connectionString.split(";");
+        if (parts.length != 3)
+            throw new RuntimeException("Error parsing connection string: "
+                    + connectionString);
+
+        for (int i = 0; i < parts.length; i++) {
+            if (parts[i].startsWith("Endpoint")) {
+                this.HubEndpoint = "https" + parts[i].substring(11);
+            } else if (parts[i].startsWith("SharedAccessKeyName")) {
+                this.HubSasKeyName = parts[i].substring(20);
+            } else if (parts[i].startsWith("SharedAccessKey")) {
+                this.HubSasKeyValue = parts[i].substring(16);
+            }
+        }
+    }
+
+    public void DialogNotify(final String title, final String message) {
+        final AlertDialog.Builder dlg;
+        dlg = new AlertDialog.Builder(this);
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog dlgAlert = dlg.create();
+                dlgAlert.setTitle(title);
+                dlgAlert.setButton(DialogInterface.BUTTON_POSITIVE,
+                        (CharSequence) "OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                dlgAlert.setMessage(message);
+                dlgAlert.setCancelable(false);
+                dlgAlert.show();
+            }
+        });
+    }
+
+    private String generateSasToken(String uri) {
+        String targetUri;
+        try {
+            targetUri = URLEncoder
+                    .encode(uri.toString().toLowerCase(), "UTF-8")
+                    .toLowerCase();
+
+            long expiresOnDate = System.currentTimeMillis();
+            int expiresInMins = 60; // 1 hour
+            expiresOnDate += expiresInMins * 60 * 1000;
+            long expires = expiresOnDate / 1000;
+            String toSign = targetUri + "\n" + expires;
+
+            // Get an hmac_sha1 key from the raw key bytes
+            byte[] keyBytes = HubSasKeyValue.getBytes("UTF-8");
+            SecretKeySpec signingKey = new SecretKeySpec(keyBytes, "HmacSHA256");
+
+            // Get an hmac_sha1 Mac instance and initialize with the signing key
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(signingKey);
+
+            // Compute the hmac on input data bytes
+            byte[] rawHmac = mac.doFinal(toSign.getBytes("UTF-8"));
+
+            // Using android.util.Base64 for Android Studio instead of
+            // Apache commons codec.
+            String signature = URLEncoder.encode(
+                    Base64.encodeToString(rawHmac, Base64.NO_WRAP).toString(), "UTF-8");
+
+            // construct authorization string
+            String token = "SharedAccessSignature sr=" + targetUri + "&sig="
+                    + signature + "&se=" + expires + "&skn=" + HubSasKeyName;
+            return token;
+        } catch (Exception e) {
+            DialogNotify("Exception Generating SaS", e.getMessage().toString());
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void registerWithNotificationHubs() {
+        new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object... params) {
+                try {
+                    String regid = gcm.register(SENDER_ID);
+                } catch (Exception e) {
+                    DialogNotify("Exception", e.getMessage());
+                    return e;
+                }
+                return null;
+            }
+        }.execute(null, null, null);
     }
 }

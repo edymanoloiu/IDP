@@ -6,34 +6,18 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MyActivity">
-
-    <Button
-        android:id="@+id/sendbutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="sendNotificationButtonOnClick"
-        android:text="@string/send_button"
-        android:layout_below="@+id/editTextNotificationMessage"
-        android:layout_alignEnd="@+id/editTextNotificationMessage"
-        android:layout_alignParentStart="true" />
-
-    <EditText
-        android:id="@+id/editTextNotificationMessage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/notification_message_hint"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true" />
+    tools:context=".MyActivity"
+    android:background="@drawable/back">
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/username"
         android:hint="Username"
-        android:layout_centerVertical="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/sendbutton" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="136dp"
+        android:layout_alignParentStart="true" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -64,4 +48,5 @@
         android:layout_below="@+id/loginUser"
         android:layout_alignParentStart="true"
         android:layout_alignEnd="@+id/loginUser" />
+
 </RelativeLayout>

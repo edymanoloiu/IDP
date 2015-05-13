@@ -15,15 +15,14 @@ public class MyHandler extends NotificationsHandler {
     NotificationCompat.Builder builder;
     Context ctx;
 
-    static public MainActivity mainActivity;
+    static public TabView tabView;
 
     @Override
     public void onReceive(Context context, Bundle bundle) {
         ctx = context;
         String nhMessage = bundle.getString("message");
-
         sendNotification(nhMessage);
-        mainActivity.DialogNotify("Received Notification", nhMessage);
+        tabView.DialogNotify("Received Notification", nhMessage);
     }
 
     private void sendNotification(String msg) {
@@ -36,7 +35,7 @@ public class MyHandler extends NotificationsHandler {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(ctx)
                         .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("Notification Hub Demo")
+                        .setContentTitle("PackPickUP Notification")
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
                         .setContentText(msg);

@@ -29,41 +29,41 @@
                     android:id="@+id/textView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="From:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:layout_above="@+id/spinner12"
                     android:layout_alignStart="@+id/datePicker"
+                    android:layout_below="@+id/datePicker"
                     android:layout_toStartOf="@+id/spinner1"
-                    android:layout_below="@+id/datePicker" />
+                    android:text="From:"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
                 <Spinner
                     android:id="@+id/spinner1"
                     android:layout_width="250dp"
                     android:layout_height="wrap_content"
-                    android:background="@android:drawable/btn_dropdown"
-                    android:spinnerMode="dropdown"
+                    android:layout_alignStart="@+id/spinner12"
                     android:layout_below="@+id/datePicker"
-                    android:layout_alignStart="@+id/spinner12" />
+                    android:background="@android:drawable/btn_dropdown"
+                    android:spinnerMode="dropdown" />
 
                 <TextView
                     android:id="@+id/textView3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_above="@+id/button"
                     android:layout_alignStart="@+id/datePicker"
                     android:layout_below="@+id/spinner1"
-                    android:text="To:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:layout_toStartOf="@+id/spinner12"
-                    android:layout_above="@+id/button" />
+                    android:text="To:"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
                 <Spinner
                     android:id="@+id/spinner12"
                     android:layout_width="250dp"
                     android:layout_height="wrap_content"
-                    android:background="@android:drawable/btn_dropdown"
-                    android:spinnerMode="dropdown"
+                    android:layout_alignEnd="@+id/datePicker"
                     android:layout_alignTop="@+id/textView3"
-                    android:layout_alignEnd="@+id/datePicker" />
+                    android:background="@android:drawable/btn_dropdown"
+                    android:spinnerMode="dropdown" />
 
                 <Button
                     android:id="@+id/button"
@@ -95,41 +95,41 @@
                     android:id="@+id/textView4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="From:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:layout_above="@+id/spinner21"
                     android:layout_alignStart="@+id/datePicker2"
+                    android:layout_below="@+id/datePicker2"
                     android:layout_toStartOf="@+id/spinner2"
-                    android:layout_below="@+id/datePicker2" />
+                    android:text="From:"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
                 <Spinner
                     android:id="@+id/spinner2"
                     android:layout_width="250dp"
                     android:layout_height="wrap_content"
-                    android:background="@android:drawable/btn_dropdown"
-                    android:spinnerMode="dropdown"
+                    android:layout_alignStart="@+id/spinner21"
                     android:layout_below="@+id/datePicker2"
-                    android:layout_alignStart="@+id/spinner21" />
+                    android:background="@android:drawable/btn_dropdown"
+                    android:spinnerMode="dropdown" />
 
                 <TextView
                     android:id="@+id/textView5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_above="@+id/button2"
                     android:layout_alignStart="@+id/datePicker2"
                     android:layout_below="@+id/spinner2"
-                    android:text="To:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:layout_toStartOf="@+id/spinner21"
-                    android:layout_above="@+id/button2" />
+                    android:text="To:"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
                 <Spinner
                     android:id="@+id/spinner21"
                     android:layout_width="250dp"
                     android:layout_height="wrap_content"
-                    android:background="@android:drawable/btn_dropdown"
-                    android:spinnerMode="dropdown"
+                    android:layout_alignEnd="@+id/datePicker2"
                     android:layout_alignTop="@+id/textView5"
-                    android:layout_alignEnd="@+id/datePicker2" />
+                    android:background="@android:drawable/btn_dropdown"
+                    android:spinnerMode="dropdown" />
 
                 <Button
                     android:id="@+id/button2"
