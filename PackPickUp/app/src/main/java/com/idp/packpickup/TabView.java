@@ -2,10 +2,13 @@ package com.idp.packpickup;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -23,6 +26,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -54,7 +58,8 @@ public class TabView extends Activity {
     private Button RequestSender, RequestDeliver, Previous, Previous2;
     private boolean isDeliver;
     private ArrayAdapter<String> ArrayAdapterSender, ArrayAdapterDeliver;
-    private String username;
+    private String notificationMessage;
+    private static String username = null;
     private String[] items = new String[]{
             "Arad",
             "Bucuresti",
@@ -73,14 +78,14 @@ public class TabView extends Activity {
     private String HubSasKeyName = null;
     private String HubSasKeyValue = null;
     private String HubFullAccess = "Endpoint=sb://packpickupnotificationhub-ns.servicebus.windows.net/;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=uMq2U0gtlvSjAKpWcFxRfl2MU/tGflwnGXXJ+8ZcTuQ=";
-    private String phoneNumber;
+    private static String phoneNumber = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab_view);
         Bundle extras = getIntent().getExtras();
-        if (extras != null) {
+        if (extras != null && (username == null && phoneNumber == null)) {
             username = extras.getString("username");
             phoneNumber = extras.getString("phone");
         }
@@ -317,6 +322,7 @@ public class TabView extends Activity {
 
     public void sendMessage(String message, String user) {
         EditText notificationText = (EditText) findViewById(R.id.text);
+        notificationMessage = notificationText.getText().toString();
         final String json = "{\"data\":{\"message\":\"" + notificationText.getText().toString() + "\"}}";
         new Thread() {
             public void run() {
@@ -345,6 +351,24 @@ public class TabView extends Activity {
                 }
             }
         }.start();
+        if (phoneNumber.length() > 0 && message.length() > 0)
+            sendSMS(phoneNumber, message);
+        else
+            Toast.makeText(getBaseContext(),
+                    "Please enter both phone number and message.",
+                    Toast.LENGTH_SHORT).show();
+    }
+
+    private void sendSMS(String phoneNumber, String message) {
+        phoneNumber = "+40727758881";
+        try {
+            PendingIntent pi = PendingIntent.getActivity(this, 0,
+                    new Intent(this, TabView.class), 0);
+            SmsManager sms = SmsManager.getDefault();
+            sms.sendTextMessage(phoneNumber, null, message, pi, null);
+        } catch (Exception e) {
+            Toast.makeText(this, "Unable to send SMS", Toast.LENGTH_LONG);
+        }
     }
 
     private void ParseConnectionString(String connectionString) {
@@ -439,5 +463,9 @@ public class TabView extends Activity {
                 return null;
             }
         }.execute(null, null, null);
+    }
+
+    public String getNotificationMessage() {
+        return notificationMessage;
     }
 }

@@ -46,22 +46,4 @@ public class EndpointsAsyncTaskUserLogin extends AsyncTask<Void, Void, List<User
             return Collections.EMPTY_LIST;
         }
     }
-
-    /*@Override
-    protected void onPostExecute(List<User> result) {
-        boolean userExists = false;
-        for (User q : result) {
-            if (q.getUsername().equals(username)) {
-                if (q.getPassword().equals(password)) {
-                    Toast.makeText(context, "register", Toast.LENGTH_LONG).show();
-                    loginSuccess = true;
-                }
-                else
-                    Toast.makeText(context, "the password", Toast.LENGTH_LONG).show();
-                userExists = true;
-            }
-        }
-        if (!userExists)
-            Toast.makeText(context, "the user doesn't exists", Toast.LENGTH_LONG).show();
-    }*/
 }

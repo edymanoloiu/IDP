@@ -40,11 +40,4 @@ class EndpointsAsyncTaskReceiver extends AsyncTask<Void, Void, List<Receiver>> {
             return Collections.EMPTY_LIST;
         }
     }
-
-    /*@Override
-    protected void onPostExecute(List<Receiver> result) {
-        for (Receiver q : result) {
-            Toast.makeText(context, q.getStartCity() + " : " + q.getDestination() + " : " + q.getDate(), Toast.LENGTH_LONG).show();
-        }
-    }*/
 }

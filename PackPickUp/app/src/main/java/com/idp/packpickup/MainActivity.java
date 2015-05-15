@@ -61,7 +61,7 @@ public class MainActivity extends ActionBarActivity {
             user.setPhoneNumber(phoneNumber);
             user.setPassword(password);
             user.setUsername(username);
-            Boolean register = new EndpointsAsyncTaskUserRegister(this, user).execute().get();
+            Boolean register = new EndpointsAsyncTaskUserRegister(user).execute().get();
             if (register) {
                 Toast.makeText(this, "registration succesufly", Toast.LENGTH_LONG);
                 Intent tabView = new Intent(this, TabView.class);
@@ -82,9 +82,6 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 }

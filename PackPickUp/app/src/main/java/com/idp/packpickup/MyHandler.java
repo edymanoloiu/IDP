@@ -21,8 +21,10 @@ public class MyHandler extends NotificationsHandler {
     public void onReceive(Context context, Bundle bundle) {
         ctx = context;
         String nhMessage = bundle.getString("message");
-        sendNotification(nhMessage);
-        tabView.DialogNotify("Received Notification", nhMessage);
+        if (!nhMessage.equals(tabView.getNotificationMessage())) {
+            sendNotification(nhMessage);
+            tabView.DialogNotify("Received Notification", nhMessage);
+        }
     }
 
     private void sendNotification(String msg) {
