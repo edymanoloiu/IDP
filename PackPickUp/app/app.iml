@@ -118,8 +118,8 @@
     <orderEntry type="library" exported="" name="api-android-endpoints" level="project" />
     <orderEntry type="library" exported="" name="play-services-appstate-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-games-7.3.0" level="project" />
-    <orderEntry type="library" exported="" name="google-oauth-client-1.19.0" level="project" />
     <orderEntry type="library" exported="" name="guava-jdk5-13.0" level="project" />
+    <orderEntry type="library" exported="" name="google-oauth-client-1.19.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-identity-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="google-api-client-1.19.0" level="project" />
   </component>

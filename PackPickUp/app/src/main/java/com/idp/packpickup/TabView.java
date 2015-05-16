@@ -79,6 +79,7 @@ public class TabView extends Activity {
     private String HubSasKeyValue = null;
     private String HubFullAccess = "Endpoint=sb://packpickupnotificationhub-ns.servicebus.windows.net/;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=uMq2U0gtlvSjAKpWcFxRfl2MU/tGflwnGXXJ+8ZcTuQ=";
     private static String phoneNumber = null;
+    private String destionationPhoneNumber;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -87,7 +88,8 @@ public class TabView extends Activity {
         Bundle extras = getIntent().getExtras();
         if (extras != null && (username == null && phoneNumber == null)) {
             username = extras.getString("username");
-            phoneNumber = extras.getString("phone");
+            //phoneNumber = extras.getString("phone");
+            phoneNumber = "+40733981234";
         }
 
         tabView = this;
@@ -212,80 +214,86 @@ public class TabView extends Activity {
     }
 
     public void populateLists() throws ExecutionException, InterruptedException {
-        Spinner plecareSender = (Spinner) findViewById(R.id.spinner1);
-        Spinner destinatieSender = (Spinner) findViewById(R.id.spinner12);
-        Spinner plecareDeliver = (Spinner) findViewById(R.id.spinner2);
-        Spinner destinatieDeliver = (Spinner) findViewById(R.id.spinner21);
-        DatePicker dataSender = (DatePicker) findViewById(R.id.datePicker);
-        String selectedDateSender = dataSender.getDayOfMonth() + "/" + (dataSender.getMonth() + 1 < 10 ? "0" + (dataSender.getMonth() + 1) : dataSender.getMonth()) + "/" + dataSender.getYear();
-        DatePicker dataDeliver = (DatePicker) findViewById(R.id.datePicker2);
-        String selectedDateDeliver = dataDeliver.getDayOfMonth() + "/" + (dataDeliver.getMonth() + 1 < 10 ? "0" + (dataDeliver.getMonth() + 1) : dataDeliver.getMonth()) + "/" + dataDeliver.getYear();
-        String senderStartCity = plecareSender.getSelectedItem().toString();
-        String senderDestinationCity = destinatieSender.getSelectedItem().toString();
-        String deliverStartCity = plecareDeliver.getSelectedItem().toString();
-        String deliverDestinationCity = destinatieDeliver.getSelectedItem().toString();
+        try {
+            Spinner plecareSender = (Spinner) findViewById(R.id.spinner1);
+            Spinner destinatieSender = (Spinner) findViewById(R.id.spinner12);
+            Spinner plecareDeliver = (Spinner) findViewById(R.id.spinner2);
+            Spinner destinatieDeliver = (Spinner) findViewById(R.id.spinner21);
+            DatePicker dataSender = (DatePicker) findViewById(R.id.datePicker);
+            String selectedDateSender = (dataSender.getDayOfMonth() < 10 ? "0" + dataSender.getDayOfMonth() : dataSender.getDayOfMonth()) + "/" + (dataSender.getMonth() + 1 < 10 ? "0" + (dataSender.getMonth() + 1) : dataSender.getMonth()) + "/" + dataSender.getYear();
+            DatePicker dataDeliver = (DatePicker) findViewById(R.id.datePicker2);
+            String selectedDateDeliver = (dataDeliver.getDayOfMonth() < 10 ? "0" + dataDeliver.getDayOfMonth() : dataDeliver.getDayOfMonth()) + "/" + (dataDeliver.getMonth() + 1 < 10 ? "0" + (dataDeliver.getMonth() + 1) : dataDeliver.getMonth()) + "/" + dataDeliver.getYear();
+            String senderStartCity = plecareSender.getSelectedItem().toString();
+            String senderDestinationCity = destinatieSender.getSelectedItem().toString();
+            String deliverStartCity = plecareDeliver.getSelectedItem().toString();
+            String deliverDestinationCity = destinatieDeliver.getSelectedItem().toString();
 
-        if (isDeliver) {
+            if (isDeliver) {
 
-            //insert deliver into DB
-            Receiver receiver = new Receiver();
-            receiver.setPhoneNumber(phoneNumber);
-            receiver.setUsername(username);
-            receiver.setDate(selectedDateDeliver);
-            receiver.setDestination(deliverDestinationCity);
-            receiver.setStartCity(deliverStartCity);
-            new EndpointsAsyncInsertReceiver(this, receiver).execute();
-            //
+                //insert deliver into DB
+                Receiver receiver = new Receiver();
+                receiver.setPhoneNumber(phoneNumber);
+                receiver.setUsername(username);
+                receiver.setDate(selectedDateDeliver);
+                receiver.setDestination(deliverDestinationCity);
+                receiver.setStartCity(deliverStartCity);
+                new EndpointsAsyncInsertReceiver(this, receiver).execute();
+                //
 
-            String[] senders = getSenders(selectedDateDeliver, deliverStartCity, deliverDestinationCity);
-            if (senders == null) {
-                senders = new String[1];
-                senders[0] = "No senders found";
-            }
-            ArrayAdapterDeliver = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, senders);
-        } else {
-            //insert sender into DB
-            Sender sender = new Sender();
-            sender.setPhoneNumber(phoneNumber);
-            sender.setUsername(username);
-            sender.setDate(selectedDateSender);
-            sender.setDestination(senderDestinationCity);
-            sender.setSentFrom(senderStartCity);
-            new EndpointsAsyncInsertSender(this, sender).execute();
-            //
-
-            String[] delivers = getDelivers(selectedDateSender, senderStartCity, senderDestinationCity);
-            if (delivers == null) {
-                delivers = new String[1];
-                delivers[0] = "No delivers found";
-            }
-            ArrayAdapterSender = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, delivers);
-        }
-
-        final ListView listview = (ListView) findViewById(R.id.listView);
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final Object o = listview.getItemAtPosition(position);
-                if (!o.toString().equals("No senders found") && !o.toString().equals("No delivers found")) {
-                    switcher.setDisplayedChild(2);
-                    TextView textView = (TextView) findViewById(R.id.t3);
-                    textView.setText("Send a message to: \n" + o.toString());
-                    final EditText editText = (EditText) findViewById(R.id.text);
-                    editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                        @Override
-                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                            boolean handled = false;
-                            if (actionId == EditorInfo.IME_ACTION_SEND) {
-                                sendMessage(editText.getText().toString(), username);
-                                handled = true;
-                            }
-                            return handled;
-                        }
-                    });
+                String[] senders = getSenders(selectedDateDeliver, deliverStartCity, deliverDestinationCity);
+                if (senders == null) {
+                    senders = new String[1];
+                    senders[0] = "No senders found";
                 }
+                ArrayAdapterDeliver = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, senders);
+            } else {
+                //insert sender into DB
+                Sender sender = new Sender();
+                sender.setPhoneNumber(phoneNumber);
+                sender.setUsername(username);
+                sender.setDate(selectedDateSender);
+                sender.setDestination(senderDestinationCity);
+                sender.setSentFrom(senderStartCity);
+                new EndpointsAsyncInsertSender(this, sender).execute();
+                //
+
+                String[] delivers = getDelivers(selectedDateSender, senderStartCity, senderDestinationCity);
+                if (delivers == null) {
+                    delivers = new String[1];
+                    delivers[0] = "No delivers found";
+                }
+                ArrayAdapterSender = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, delivers);
             }
-        });
+
+            final ListView listview = (ListView) findViewById(R.id.listView);
+            listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    final Object o = listview.getItemAtPosition(position);
+                    if (!o.toString().equals("No senders found") && !o.toString().equals("No delivers found")) {
+                        switcher.setDisplayedChild(2);
+                        String phNumber = o.toString().split(" ")[1];
+                        destionationPhoneNumber = phNumber.equals("null") ? null : phNumber;
+                        TextView textView = (TextView) findViewById(R.id.t3);
+                        textView.setText("Send a message to: \n" + o.toString());
+                        final EditText editText = (EditText) findViewById(R.id.text);
+                        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                            @Override
+                            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                                boolean handled = false;
+                                if (actionId == EditorInfo.IME_ACTION_SEND) {
+                                    sendMessage(editText.getText().toString(), username);
+                                    handled = true;
+                                }
+                                return handled;
+                            }
+                        });
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(this, "Error connectiong to the database", Toast.LENGTH_LONG);
+        }
     }
 
     public String[] getSenders(String selectedDate, String senderStartCity, String senderDestinationCity) throws ExecutionException, InterruptedException {
@@ -352,23 +360,24 @@ public class TabView extends Activity {
             }
         }.start();
         if (phoneNumber.length() > 0 && message.length() > 0)
-            sendSMS(phoneNumber, message);
+            sendSMS(message);
         else
             Toast.makeText(getBaseContext(),
                     "Please enter both phone number and message.",
                     Toast.LENGTH_SHORT).show();
     }
 
-    private void sendSMS(String phoneNumber, String message) {
-        phoneNumber = "+40727758881";
-        try {
-            PendingIntent pi = PendingIntent.getActivity(this, 0,
-                    new Intent(this, TabView.class), 0);
-            SmsManager sms = SmsManager.getDefault();
-            sms.sendTextMessage(phoneNumber, null, message, pi, null);
-        } catch (Exception e) {
-            Toast.makeText(this, "Unable to send SMS", Toast.LENGTH_LONG);
-        }
+    private void sendSMS(String message) {
+        if (destionationPhoneNumber != null) {
+            try {
+                PendingIntent pi = PendingIntent.getActivity(this, 0,
+                        new Intent(this, TabView.class), 0);
+                SmsManager sms = SmsManager.getDefault();
+                sms.sendTextMessage(destionationPhoneNumber, null, message, pi, null);
+            } catch (Exception e) {
+                Toast.makeText(this, "Unable to send SMS", Toast.LENGTH_LONG);
+            }
+        } else Toast.makeText(this, "Destionation has no phone number", Toast.LENGTH_LONG);
     }
 
     private void ParseConnectionString(String connectionString) {
@@ -457,7 +466,7 @@ public class TabView extends Activity {
                 try {
                     String regid = gcm.register(SENDER_ID);
                 } catch (Exception e) {
-                    DialogNotify("Exception", e.getMessage());
+                    DialogNotify("Notification Hub Error: ", e.getMessage());
                     return e;
                 }
                 return null;
